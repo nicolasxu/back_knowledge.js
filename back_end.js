@@ -908,6 +908,64 @@ function backEnd() {
 				}
 			}
 
+			function array() {
+				function $all() {
+					var source = "https://docs.mongodb.org/manual/reference/operator/query/all/#op._S_all";
+					//  array that contains all the specified elements
+					
+					var searchObj = { tags: { $all: [ "ssl" , "security" ] } };
+					// same as
+					var equalObj = { $and: [ { tags: "ssl" }, { tags: "security" } ] }; 
+
+						/*
+						When passed an array of a nested array (e.g. [ [ "A" ] ] ), 
+						$all can now match documents where the field contains the 
+						nested array as an element (e.g. field: [ [ "A" ], ... ]), 
+						or the field equals the nested array (e.g. field: [ "A" ]).
+						 */
+						db.articles.find( { tags: { $all: [ [ "ssl", "security" ] ] } } )
+						db.articles.find( { $and: [ { tags: [ "ssl", "security" ] } ] } )
+						db.articles.find( { tags: [ "ssl", "security" ] } )
+
+						// As such, the $all expression can match documents where the
+						//  tags field is an array that contains the nested array 
+						//  [ "ssl", "security" ] or is an array that equals the nested 
+						//  array:
+						tags: [ [ "ssl", "security" ], ... ]
+						tags: [ "ssl", "security" ]
+				}
+				function $elemMatch() {
+					// matches documents that contain an 
+					// array field with at least one element that
+					//  matches all the specified query criteria.
+					/*
+					{ _id: 1, results: [ 82, 85, 88 ] }
+					{ _id: 2, results: [ 75, 88, 89 ] }
+					 */
+					
+					db.scores.find(
+					  { results: { $elemMatch: { $gte: 80, $lt: 85 } } }
+					)
+
+					db.survey.find(
+					   { results: { $elemMatch: { product: "xyz", score: { $gte: 8 } } } }
+					)
+
+					db.survey.find(
+				   { "results.product": "xyz" }
+					)
+				}
+				function $size() {
+					db.collection.find( { field: { $size: 2 } } );
+					// Important:
+					// 						$size does not accept ranges of values. 
+					// Workaround:
+					//To select documents based on fields with different 
+					//numbers of elements, create a counter field that 
+					//you increment when you add elements to a field.
+				}
+			}
+
 
 
 
