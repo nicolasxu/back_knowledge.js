@@ -583,9 +583,331 @@ function backEnd() {
 
 			function logical() {
 				function $or() {
+					var source = "https://docs.mongodb.org/manual/reference/operator/query/or/#op._S_or";
+					// { $or: [ { <expression1> }, { <expression2> }, ... , { <expressionN> } ] }
 					
+					db.inventory.find( { $or: [ { quantity: { $lt: 20 } }, { price: 10 } ] } )
+					// It will perform full collection or index scan. You can add index to speed it up by.
+					db.inventory.createIndex( { quantity: 1 } )
+					db.inventory.createIndex( { price: 1 } )
+
+					// 2. exception
+					//  -  $or cannot contain a near clause with any other clause (near clause includes $nearSphere and $near) 
+					
+					// 3. $or vs $in
+					// If you want to check equality of the same field, use $in, e.g.:
+					db.inventory.find ( { quantity: { $in: [20, 50] } } )
+				}
+				function $and() {
+					// $and performs a logical AND operation on an array of two or more expressions
+					// If the first expression (e.g. <expression1>) evaluates to false, 
+					// MongoDB will not evaluate the remaining expressions
+					db.inventory.find( { $and: [ { price: { $ne: 1.99 } }, { price: { $exists: true } } ] } )
+					// same as
+					db.inventory.find( { price: { $ne: 1.99, $exists: true } } )
+
+					// example 2:
+					db.inventory.find( {
+					  $and : [
+				      { $or : [ { price : 0.99 }, { price : 1.99 } ] },
+			        { $or : [ { sale : true }, { qty : { $lt : 20 } } ] }
+					  ]
+					})
+				}
+				function $not() {
+					db.inventory.find( { price: { $not: { $gt: 1.99 } } } )
+					// example:
+					// - the price field value is less than or equal to 1.99 or
+					// - the price field does not exist
+					
+					// { $not: { $gt: 1.99 } } is different from the $lte operator. { $lte: 1.99 } returns only the
+					// documents where price field exists and its value is less than or equal to 1.99.
+
+					// basic rule:
+					// - $not only affects other operators
+					// - $ne operator to test the contents of fields directly
+					
+					// Important!
+					// 1. $not on array may product unexpected result
+					// 2. $not cannot use with $regex operator, instead, use "//", e.g.:
+					db.inventory.find( { item: { $not: /^p.*/ } } )
+				}
+				function $nor() {
+					db.inventory.find( { $nor: [ { price: 1.99 }, { sale: true } ]  } )
+						// select both false, or not exist
+						/*
+
+							- contain the price field whose value is not equal to 1.99 and contain the sale field whose value is not equal to true or
+							- contain the price field whose value is not equal to 1.99 but do not contain the sale field or
+							- do not contain the price field but contain the sale field whose value is not equal to true or
+							- do not contain the price field and do not contain the sale field						
+
+						*/
+					// $nor and $exists
+					db.inventory.find( { $nor: [ { price: 1.99 }, { price: { $exists: false } },
+                             { sale: true }, { sale: { $exists: false } } ] } )
+
+					// contain the price field whose value is not equal to 1.99 and 
+					// contain the sale field whose value is not equal to true
 				}
 			}
+
+			function element() {
+				function $exists() {
+
+				}
+				function $type() {
+					db.inventory.find( { qty: { $exists: true, $nin: [ 5, 15 ] } } )
+					// check key exists or not. The value can be null.
+				}
+			}
+
+			function evaluation() {
+				function $mod() {
+					var source = "https://docs.mongodb.org/manual/reference/operator/query/mod/#op._S_mod";
+					/*
+					{ "_id" : 1, "item" : "abc123", "qty" : 0 }
+					{ "_id" : 2, "item" : "xyz123", "qty" : 5 }
+					{ "_id" : 3, "item" : "ijk123", "qty" : 12 }
+
+					*/
+
+
+					db.inventory.find( { qty: { $mod: [ 4, 0 ] } } )
+					// => db.inventory.find( { qty: { $mod: [ 4, 0 ] } } )
+
+					// if the [] has fewer than 2 element or more than 2 element, 
+					// an error is thrown. 
+				}
+
+				function $regex() {
+					// { <field>: /pattern/<options> }
+					// { name: { $in: [ /^acme/i, /^ack/ ] } }
+					// IMPORTANT
+					// You cannot use $regex operator expressions inside an $in.
+					
+					// { "_id" : 100, "sku" : "abc123", "description" : "Single line description." }
+					// { "_id" : 101, "sku" : "abc789", "description" : "First line\nSecond line" } 
+					db.products.find( { description: { $regex: /^S/, $options: 'm' } } )
+				}
+
+				function $text() {
+					// $text performs a text search on the content of the fields 
+					// !!!!!!!!!!!! indexed with a text index  !!!!!!!!!!!!!
+					// here is how to create text index
+					db.reviews.createIndex( { comments: "text" } )
+					/*
+					{
+					  $text:
+					    {
+					      $search: <string>,
+					      $language: <string>,
+					      $caseSensitive: <boolean>,
+					      $diacriticSensitive: <boolean>
+					    }
+					}
+					*/
+					
+					// example: 
+					db.articles.insert(
+					   [
+					     { _id: 1, subject: "coffee", author: "xyz", views: 50 },
+					     { _id: 2, subject: "Coffee Shopping", author: "efg", views: 5 },
+					     { _id: 3, subject: "Baking a cake", author: "abc", views: 90  },
+					     { _id: 4, subject: "baking", author: "xyz", views: 100 },
+					     { _id: 5, subject: "Café Con Leche", author: "abc", views: 200 },
+					     { _id: 6, subject: "Сырники", author: "jkl", views: 80 },
+					     { _id: 7, subject: "coffee and cream", author: "efg", views: 10 },
+					     { _id: 8, subject: "Cafe con Leche", author: "xyz", views: 10 }
+					   ]
+					)
+
+					// 1. basic search
+					db.articles.find( { $text: { $search: "coffee" } } )
+					// 2. logic or on terms
+					db.articles.find( { $text: { $search: "bake coffee cake" } } )
+					// 3. search for a phrase
+					db.articles.find( { $text: { $search: "\"coffee shop\"" } } )
+					// 4. exclude a term 
+					db.articles.find( { $text: { $search: "coffee -shop" } } )
+					// 5. search different language
+					db.articles.find(
+					  { $text: { $search: "leche", $language: "es" } }
+					)
+					// 6. Case and Diacritic Insensitive Search
+					db.articles.find( { $text: { $search: "сы́рники CAFÉS" } } )
+					// 7. Case Sensitive Search
+					db.articles.find( { $text: { $search: "Coffee", $caseSensitive: true } } )
+					// 8. Case Sensitive Search for a Phrase
+					db.articles.find( {
+					  $text: { $search: "\"Café Con Leche\"", $caseSensitive: true }
+					})
+					// 9. Case Sensitivity with Negated Term
+					db.articles.find( { $text: { $search: "Coffee -shop", $caseSensitive: true } } )
+					// 10. Diacritic Sensitive Search
+					db.articles.find( { $text: { $search: "CAFÉ", $diacriticSensitive: true } } )
+					// 11. Diacritic Sensitivity with Negated Term
+					db.articles.find(
+					  { $text: { $search: "leches -cafés", $diacriticSensitive: true } }
+					)
+					// 12. Return the Text Search Score
+					db.articles.find(
+					  { $text: { $search: "cake" } },
+					  { score: { $meta: "textScore" } }
+					)
+					// 13. Sort by Text Search Score
+					db.articles.find(
+					  { $text: { $search: "coffee" } },
+					  { score: { $meta: "textScore" } }
+					).sort( { score: { $meta: "textScore" } } )
+					// 14. return top 2 matching documents
+					db.articles.find(
+					  { $text: { $search: "coffee" } },
+					  { score: { $meta: "textScore" } }
+					).sort( { score: { $meta: "textScore" } } ).limit(2)
+
+					// Text Search with Additional Query and Sort Expressions
+					db.articles.find(
+					  { author: "xyz", $text: { $search: "coffee bake" } },
+					  { score: { $meta: "textScore" } }
+					).sort( { date: 1, score: { $meta: "textScore" } } )
+				}
+				function $where() {
+					// In general, you should use $where only when you 
+					// can’t express your query using another operator.
+					db.myCollection.find( { $where: "this.credits == this.debits" } );
+					db.myCollection.find( { $where: "obj.credits == obj.debits" } );
+
+					// this or obj refers to current document
+					
+					db.myCollection.find( "this.credits == this.debits || this.credits > this.debits" );
+					db.myCollection.find( function() { return (this.credits == this.debits || this.credits > this.debits ) } );
+					// if the query consists only of the $where operator, 
+					// you can pass in just the JavaScript expression or JavaScript functions
+				}
+			}
+			function geospatial() {
+				// checkout the geoJSON spec:
+				var url =  "http://geojson.org/geojson-spec.html";
+				function $geoWithin() {
+					db.places.find(
+					   {
+					     loc: {
+					       $geoWithin: {
+					          $geometry: {
+					             type : "Polygon" ,
+					             coordinates: [ [ [ 0, 0 ], [ 3, 6 ], [ 6, 1 ], [ 0, 0 ] ] ]
+					          }
+					       }
+					     }
+					   }
+					)
+
+					db.places.find(
+					   {
+					     loc: {
+					       $geoWithin: {
+					          $geometry: {
+					             type : "Polygon" ,
+					             coordinates: [
+					               [
+					                 [ -100, 60 ], [ -100, 0 ], [ -100, -60 ], [ 100, -60 ], [ 100, 60 ], [ -100, 60 ]
+					               ]
+					             ],
+					             crs: {
+					                type: "name",
+					                properties: { name: "urn:x-mongodb:crs:strictwinding:EPSG:4326" }
+					             }
+					          }
+					       }
+					     }
+					   }
+					)
+					// $within is deprecated
+				}
+
+				function $geoIntersects() {
+					db.places.find(
+					   {
+					     loc: {
+					       $geoIntersects: {
+					          $geometry: {
+					             type: "Polygon" ,
+					             coordinates: [
+					               [ [ 0, 0 ], [ 3, 6 ], [ 6, 1 ], [ 0, 0 ] ]
+					             ]
+					          }
+					       }
+					     }
+					   }
+					)
+
+					db.places.find(
+					   {
+					     loc: {
+					       $geoIntersects: {
+					          $geometry: {
+					             type : "Polygon",
+					             coordinates: [
+					               [
+					                 [ -100, 60 ], [ -100, 0 ], [ -100, -60 ], [ 100, -60 ], [ 100, 60 ], [ -100, 60 ]
+					               ]
+					             ],
+					             crs: {
+					                type: "name",
+					                properties: { name: "urn:x-mongodb:crs:strictwinding:EPSG:4326" }
+					             }
+					          }
+					       }
+					     }
+					   }
+					)
+				}
+
+				function $near() {
+
+					db.places.find(
+					   {
+					     location:
+					       { $near :
+					          {
+					            $geometry: { type: "Point",  coordinates: [ -73.9667, 40.78 ] },
+					            $minDistance: 1000,
+					            $maxDistance: 5000
+					          }
+					       }
+					   }
+					)
+
+					db.legacy2d.find(
+					   { location : { $near : [ -73.9667, 40.78 ], $maxDistance: 0.10 } }
+					)					
+				}
+				function $nearSphere() {
+					// $nearSphere requires a geospatial index:
+
+
+					db.places.find(
+					   {
+					     location: {
+					        $nearSphere: {
+					           $geometry: {
+					              type : "Point",
+					              coordinates : [ -73.9667, 40.78 ]
+					           },
+					           $minDistance: 1000,
+					           $maxDistance: 5000
+					        }
+					     }
+					   }
+					)
+
+					db.legacyPlaces.find(
+					  { location : { $nearSphere : [ -73.9667, 40.78 ], $maxDistance: 0.10 } }
+					)
+				}
+			}
+
 
 
 
