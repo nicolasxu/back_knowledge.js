@@ -931,7 +931,7 @@ function backEnd() {
 						//  tags field is an array that contains the nested array 
 						//  [ "ssl", "security" ] or is an array that equals the nested 
 						//  array:
-						tags: [ [ "ssl", "security" ], ... ]
+						tags: [ [ "ssl", "security" ], [] ]
 						tags: [ "ssl", "security" ]
 				}
 				function $elemMatch() {
@@ -966,14 +966,572 @@ function backEnd() {
 				}
 			}
 
+			function projection() {
+				function $() {
+					var source = "https://docs.mongodb.org/manual/reference/operator/projection/positional/#proj._S_";
+
+					/*
+					example:
+					{ "_id" : 1, "semester" : 1, "grades" : [ 70, 87, 90 ] }
+					{ "_id" : 2, "semester" : 1, "grades" : [ 90, 88, 92 ] }
+					{ "_id" : 3, "semester" : 1, "grades" : [ 85, 100, 90 ] }
+					{ "_id" : 4, "semester" : 2, "grades" : [ 79, 85, 80 ] }
+					{ "_id" : 5, "semester" : 2, "grades" : [ 88, 88, 92 ] }
+					{ "_id" : 6, "semester" : 2, "grades" : [ 95, 90, 96 ] }
+										 */
+					
+					db.students.find( { semester: 1, grades: { $gte: 85 } },
+                  { "grades.$": 1 } )
+					// =>
+					/*
+					{ "_id" : 1, "grades" : [ 87 ] }
+					{ "_id" : 2, "grades" : [ 90 ] }
+					{ "_id" : 3, "grades" : [ 85 ] }
+					 */
+					
+					// another example:
+					/*
+					
+						{ "_id" : 7, semester: 3, "grades" : [ { grade: 80, mean: 75, std: 8 },
+						                                       { grade: 85, mean: 90, std: 5 },
+						                                       { grade: 90, mean: 85, std: 3 } ] }
+
+						{ "_id" : 8, semester: 3, "grades" : [ { grade: 92, mean: 88, std: 8 },
+						                                       { grade: 78, mean: 90, std: 5 },
+						                                       { grade: 88, mean: 85, std: 3 } ] }
+
+					 */
+					db.students.find(
+					   { "grades.mean": { $gt: 70 } },
+					   { "grades.$": 1 }
+					) // result =>
+					// { "_id" : 7, "grades" : [  {  "grade" : 80,  "mean" : 75,  "std" : 8 } ] }
+					// { "_id" : 8, "grades" : [  {  "grade" : 92,  "mean" : 88,  "std" : 8 } ] }
+				}
+				function $elemMatch() {
+					var source = "https://docs.mongodb.org/manual/reference/operator/projection/elemMatch/#proj._S_elemMatch";
+					// Both the $ operator and the $elemMatch operator project a subset of elements from an array based on a condition.
+					// The $elemMatch projection operator takes an explicit 
+					// condition argument. This allows you to project based on a condition not in the query, or if you need to project based on multiple fields in the array’s embedded documents.
+				}
+				function $meta() {
+					var source = "https://docs.mongodb.org/manual/reference/operator/projection/meta/#proj._S_meta";
+
+						db.collection.find(
+						   {/* query object*/},
+						   { score: { $meta: "textScore" } }
+						).sort( { score: { $meta: "textScore" } } )
+				}
+				function $slice() {
+					var source = "https://docs.mongodb.org/manual/reference/operator/projection/slice/#proj._S_slice";
+					db.posts.find( {}, { comments: { $slice: 5 } } )
+					// only return first 5 items in comments array
+					db.posts.find( {}, { comments: { $slice: -5 } } )
+					// return last 5 in comments
+					db.posts.find( {}, { comments: { $slice: [ 20, 10 ] } } )
+					// [ skip , limit ]
+					db.posts.find( {}, { comments: { $slice: [ -20, 10 ] } } )
+					// This operation returns 10 items as well, beginning with the item that is 20th from the last item of the array.
 
 
-
-
+				}
+			}
 		}
-		function full_projection() {
-			var source = "https://docs.mongodb.org/manual/reference/operator/projection/";
+
+		function update_operators() {
+			function field() {
+				function $inc() {
+					// - The $inc operator accepts positive and negative values.
+					// - If the field does not exist, $inc creates the field and sets the field to the specified value.
+					// - Use of the $inc operator on a field with a null value will generate an error.
+					// - $inc is an atomic operation within a single document.				
+					/*
+					{
+					  _id: 1,
+					  sku: "abc123",
+					  quantity: 10,
+					  metrics: {
+					    orders: 2,
+					    ratings: 3.5
+					  }
+					}
+					 */
+					db.products.update(
+					   { sku: "abc123" },
+					   { $inc: { quantity: -2, "metrics.orders": 1 } }
+					)
+				}
+				function $mul() {
+					// Multiply the value of a field by a number. 
+					// { _id: 1, item: "ABC", price: 10.99 }
+
+					db.products.update(
+					   { _id: 1 },
+					   { $mul: { price: 1.25 } }
+					)
+				}
+				function $rename() {
+					var source ="https://docs.mongodb.org/manual/reference/operator/update/rename/#up._S_rename";
+					// The $rename operator updates the name of a field
+					
+					db.students.update( { _id: 1 }, { $rename: { "nmae": "name" } } )
+
+					db.students.update( { _id: 1 }, { $rename: { "name.first": "name.fname" } } )
+
+					db.students.update( { _id: 1 }, { $rename: { 'wife': 'spouse' } } )
+				}
+				function $setOnInsert() {
+					/*
+						If an update operation with upsert: true results in an 
+						insert of a document, then $setOnInsert assigns the specified 
+						values to the fields in the document. If the update operation 
+						does not result in an insert, $setOnInsert does nothing.
+					*/
+					db.products.update(
+					  { _id: 1 },
+					  {
+					     $set: { item: "apple" },
+					     $setOnInsert: { defaultQty: 100 }
+					  },
+					  { upsert: true }
+					)
+				}
+				function $set() {
+					var source = "https://docs.mongodb.org/manual/reference/operator/update/set/#up._S_set";
+					// The $set operator replaces the value of a field with the specified value.
+
+					// If the field does not exist, $set will add a new field with the specified value,
+					//  provided that the new field does not violate a type constraint.
+					
+
+					db.products.update(
+				    { _id: 100 },
+				    { $set:
+				      {
+				        quantity: 500,
+				        details: { model: "14Q3", make: "xyz" },
+				        tags: [ "coats", "outerwear", "clothing" ]
+				      }
+				    }
+					)  
+
+					db.products.update(
+					  { _id: 100 },
+					  { $set: { "details.make": "zzz" } }
+					)
+
+					db.products.update(
+					  { _id: 100 },
+					  { $set:
+					    {
+					      "tags.1": "rain gear",
+					      "ratings.0.rating": 2
+					    }
+					  }
+					)
+				}
+				function $unset() {
+					// The $unset operator deletes a particular field.
+					// If the field does not exist, then $unset does nothing (i.e. no operation).
+					db.products.update(
+					   { sku: "unknown" },
+					   { $unset: { quantity: "", instock: "" } }
+					)
+				}
+				function $min() {
+					// The $min updates the value of the field to a specified 
+					// value if the specified value is less than the current value of the field.
+					
+					// { _id: 1, highScore: 800, lowScore: 200 }
+					db.scores.update( { _id: 1 }, { $min: { lowScore: 150 } } )
+					// result => 
+					// { _id: 1, highScore: 800, lowScore: 150 }
+				}
+				function $max() {
+					//  The $max operator updates 
+					//  the value of the field to a specified value if the specified value is greater than the current value of the field. 
+					//  { _id: 1, highScore: 800, lowScore: 200 }
+
+					db.scores.update( { _id: 1 }, { $max: { highScore: 950 } } )
+
+					// {
+					//    _id: 1,
+					//    desc: "decorative arts",
+					//    dateEntered: ISODate("2013-10-01T05:00:00Z"),
+					//    dateExpired: ISODate("2013-10-01T16:38:16.163Z")
+					// }
+
+					db.tags.update(
+					   { _id: 1 },
+					   { $max: { dateExpired: new Date("2013-09-30") } }
+					)
+				}
+				function $currentDate() {
+					//  The $currentDate operator sets the value of 
+					//  a field to the current date, either as a Date or a timestamp.
+					
+					// { _id: 1, status: "a", lastModified: ISODate("2013-10-02T01:11:18.965Z") }
+					
+					// - a boolean true to set the field value to the 
+					//    current date as a Date, or
+					// - a document { $type: "timestamp" } or { $type: "date" } 
+					//   which explicitly specifies the type. The operator is 
+					//   case-sensitive and accepts only the lowercase "timestamp" 
+					//   or the lowercase "date".
+					
+					// { _id: 1, status: "a", lastModified: ISODate("2013-10-02T01:11:18.965Z") }
+
+					db.users.update(
+					   { _id: 1 },
+					   {
+					     $currentDate: {
+					        lastModified: true,
+					        "cancellation.date": { $type: "timestamp" }
+					     },
+					     $set: {
+					        status: "D",
+					        "cancellation.reason": "user request"
+					     }
+					   }
+					) // result =>
+
+					var result = {
+					   "_id" : 1,
+					   "status" : "D",
+					   "lastModified" : ISODate("2014-09-17T23:25:56.314Z"),
+					   "cancellation" : {
+					      "date" : Timestamp(1410996356, 1),
+					      "reason" : "user request"
+					   }
+					}
+				}
+			}
+			function array() {
+				function $() {
+					// 1st in the matched array
+					
+					// - the positional $ operator acts as a placeholder for the first element that matches the query document, and
+					// - the array field must appear as part of the query document.
+					
+					/*
+						{ "_id" : 1, "grades" : [ 80, 85, 90 ] }
+						{ "_id" : 2, "grades" : [ 88, 90, 92 ] }
+						{ "_id" : 3, "grades" : [ 85, 100, 90 ] }
+					*/
+					db.students.update(
+					   { _id: 1, grades: 80 },
+					   { $set: { "grades.$" : 82 } }
+					) // update first 80 in grades to 82
+
+					// example 2:
+					/*
+					{
+						  _id: 4,
+						  grades: [
+						     { grade: 80, mean: 75, std: 8 },
+						     { grade: 85, mean: 90, std: 5 },
+						     { grade: 90, mean: 85, std: 3 }
+						  ]
+						}
+					 */
+					db.students.update(
+					   { _id: 4, "grades.grade": 85 },
+					   { $set: { "grades.$.std" : 6 } }
+					)
+				}
+
+				function $addToSet() {
+					// The $addToSet operator adds a value to an
+					//  array unless the value is already present, 
+					//  in which case $addToSet does nothing to that array.
+					
+					// { _id: 1, letters: ["a", "b"] }
+					db.test.update(
+					   { _id: 1 },
+					   { $addToSet: {letters: [ "c", "d" ] } }
+					) // result => 
+					// { _id: 1, letters: [ "a", "b", [ "c", "d" ] ] }
+					// To add each element of the value separately, use 
+					// the $each modifier with $addToSet.
+					
+
+					// another example: 
+					// { _id: 2, item: "cable", tags: [ "electronics", "supplies" ] }
+ 					db.inventory.update(
+					   { _id: 2 },
+					   { $addToSet: { tags: { $each: [ "camera", "electronics", "accessories" ] } } }
+					) // result => 
+
+					// {
+					// 	_id: 2,
+					// 	item: "cable",
+					// 	tags: [ "electronics", "supplies", "camera", "accessories" ]
+					// }
+				}
+				function $pop(){
+					// The $pop operator removes the first or last element of an array.
+					// { _id: 1, scores: [ 8, 9, 10 ] }
+					db.students.update( { _id: 1 }, { $pop: { scores: -1 } } ) // remove first
+					// result =>
+					// { _id: 1, scores: [ 9, 10 ] }
+					// 
+					db.students.update( { _id: 1 }, { $pop: { scores: 1 } } )
+					// remove the last element in the array
+				}
+				function $pullAll() {
+					// The $pullAll operator removes all instances of the specified values from an existing array.
+					// { _id: 1, scores: [ 0, 2, 5, 5, 1, 0 ] }
+					db.survey.update( { _id: 1 }, { $pullAll: { scores: [ 0, 5 ] } } )
+					// result =>
+					// { "_id" : 1, "scores" : [ 2, 1 ] }
+				}
+				function $pull() {
+					var source = "https://docs.mongodb.org/manual/reference/operator/update/pull/#pull-array-of-documents";
+					// 1. === specific value
+					db.stores.update(
+					    { },
+					    { $pull: { fruits: { $in: [ "apples", "oranges" ] }, vegetables: "carrots" } },
+					    { multi: true }
+					)
+					// 2. match condition
+					db.profiles.update( { _id: 1 }, { $pull: { votes: { $gte: 6 } } } )
+					// 3. remove items from an array of documents
+					db.survey.update(
+					  { },
+					  { $pull: { results: { score: 8 , item: "B" } } },
+					  { multi: true }
+					)
+					// 4. $elemMatch, please review the official document
+					//    on the above link
+					db.survey.update(
+					  { },
+					  { $pull: { results: { answers: { $elemMatch: { q: 2, a: { $gte: 8 } } } } } },
+					  { multi: true }
+					)
+				}
+				function $push() {
+					// The $push operator appends a specified value to an array.
+					
+					// - If the field is not an array, the operation will fail.
+					// - If the field is absent in the document to update, 
+					//    $push adds the array field with the value as its element.
+					// - If the value is an array, $push appends the whole array as a single element. 
+
+					// you can use $each modifier to the $push operator
+					// $each, $slice, $sort, $position
+					// example: 
+					db.students.update(
+					   { name: "joe" },
+					   { $push: { scores: { $each: [ 90, 92, 85 ] } } }
+					)
+					// example: 
+					db.students.update(
+					   { _id: 5 },
+					   {
+					     $push: {
+					       quizzes: {
+					          $each: [ { wk: 5, score: 8 }, { wk: 6, score: 7 }, { wk: 7, score: 6 } ],
+					          $sort: { score: -1 },
+					          $slice: 3
+					       }
+					     }
+					   }
+					)
+				}
+			}
+
+			function modifiers() {
+				function $each() {
+					db.students.update(
+					   { name: "joe" },
+					   { $push: { scores: { $each: [ 90, 92, 85 ] } } }
+					)
+
+					db.inventory.update(
+				    { _id: 2 },
+				    { $addToSet: { tags: { $each: [ "camera", "electronics", "accessories" ] } } }
+				  )
+				}
+
+				function $slice() {
+
+					db.students.update(
+					   { _id: 1 },
+					   {
+					     $push: {
+					       scores: {
+					         $each: [ 80, 78, 86 ],
+					         $slice: -5
+					       }
+					     }
+					   }
+					)
+
+					db.students.update(
+					   { _id: 5 },
+					   {
+					     $push: {
+					       quizzes: {
+					          $each: [ { wk: 5, score: 8 }, { wk: 6, score: 7 }, { wk: 7, score: 6 } ],
+					          $sort: { score: -1 },
+					          $slice: 3
+					       }
+					     }
+					   }
+					)
+				}
+
+				function $sort() {
+					db.students.update(
+					   { _id: 1 },
+					   {
+					     $push: {
+					       quizzes: {
+					         $each: [ { id: 3, score: 8 }, { id: 4, score: 7 }, { id: 5, score: 6 } ],
+					         $sort: { score: 1 }
+					       }
+					     }
+					   }
+					)
+				}
+
+				function $position() {
+					var source = "https://docs.mongodb.org/manual/reference/operator/update/position/#up._S_position";
+					// The $position modifier specifies the location 
+					// in the array at which the $push operator insert elements.
+					
+					db.students.update(
+					   { _id: 1 },
+					   {
+					     $push: {
+					        scores: {
+					           $each: [ 50, 60, 70 ],
+					           $position: 0
+					        }
+					     }
+					   }
+					)
+
+					db.students.update(
+					   { _id: 1 },
+					   {
+					     $push: {
+					        scores: {
+					           $each: [ 20, 30 ],
+					           $position: 2
+					        }
+					     }
+					   }
+					)
+				}
+			}
+
+			function isolation() {
+				function $isolated() {
+					db.foo.update(
+					  { status : "A" , $isolated : 1 },
+					  { $inc : { count : 1 } },
+					  { multi: true }
+					)
+					// Without the $isolated operator, the multi-update 
+					// operation will allow other operations to interleave with its update of the matched documents.
+				}
+			}
 		}
+
+		function aggregation_pipeline_operators() {
+			function $project() {
+				var source = "https://docs.mongodb.org/manual/reference/operator/aggregation/project/#pipe._S_project";
+				/*
+				{
+				  "_id" : 1,
+				  title: "abc123",
+				  isbn: "0001122223334",
+				  author: { last: "zzz", first: "aaa" },
+				  copies: 5
+				}
+				 */
+				db.books.aggregate( [ { $project : { title : 1 , author : 1 } } ] )
+				// => { "_id" : 1, "title" : "abc123", "author" : { "last" : "zzz", "first" : "aaa" } }
+				db.books.aggregate( [ { $project : { _id: 0, title : 1 , author : 1 } } ] )
+				// => { "title" : "abc123", "author" : { "last" : "zzz", "first" : "aaa" } }
+				db.bookmarks.aggregate( [ { $project: { "stop.title": 1 } } ] )
+
+				// 2. Include Computed Fields
+				/*
+				{
+				  "_id" : 1,
+				  title: "abc123",
+				  isbn: "0001122223334",
+				  author: { last: "zzz", first: "aaa" },
+				  copies: 5
+				}
+				*/
+				db.books.aggregate(
+				   [
+				      {
+				         $project: {
+				            title: 1,
+				            isbn: {
+				               prefix: { $substr: [ "$isbn", 0, 3 ] },
+				               group: { $substr: [ "$isbn", 3, 2 ] },
+				               publisher: { $substr: [ "$isbn", 5, 4 ] },
+				               title: { $substr: [ "$isbn", 9, 3 ] },
+				               checkDigit: { $substr: [ "$isbn", 12, 1] }
+				            },
+				            lastName: "$author.last",
+				            copiesSold: "$copies"
+				         }
+				      }
+				   ]
+				) // =>
+				// {
+				//    "_id" : 1,
+				//    "title" : "abc123",
+				//    "isbn" : {
+				//       "prefix" : "000",
+				//       "group" : "11",
+				//       "publisher" : "2222",
+				//       "title" : "333",
+				//       "checkDigit" : "4"
+				//    },
+				//    "lastName" : "zzz",
+				//    "copiesSold" : 5
+				// }
+
+				// 3. Project New Array Fields
+				// { "_id" : ObjectId("55ad167f320c6be244eb3b95"), "x" : 1, "y" : 1 }
+				db.collection.aggregate( [ { $project: { myArray: [ "$x", "$y" ] } } ] )
+				// => { "_id" : ObjectId("55ad167f320c6be244eb3b95"), "myArray" : [ 1, 1 ] }
+				db.collection.aggregate( [ { $project: { myArray: [ "$x", "$y", "$someField" ] } } ] )
+				// =>{ "_id" : ObjectId("55ad167f320c6be244eb3b95"), "myArray" : [ 1, 1, null ] }
+			}
+			function $match() {
+				/*
+				{ "_id" : ObjectId("512bc95fe835e68f199c8686"), "author" : "dave", "score" : 80, "views" : 100 }
+				{ "_id" : ObjectId("512bc962e835e68f199c8687"), "author" : "dave", "score" : 85, "views" : 521 }
+				{ "_id" : ObjectId("55f5a192d4bede9ac365b257"), "author" : "ahn", "score" : 60, "views" : 1000 }
+				{ "_id" : ObjectId("55f5a192d4bede9ac365b258"), "author" : "li", "score" : 55, "views" : 5000 }
+				{ "_id" : ObjectId("55f5a1d3d4bede9ac365b259"), "author" : "annT", "score" : 60, "views" : 50 }
+				{ "_id" : ObjectId("55f5a1d3d4bede9ac365b25a"), "author" : "li", "score" : 94, "views" : 999 }
+				{ "_id" : ObjectId("55f5a1d3d4bede9ac365b25b"), "author" : "ty", "score" : 95, "views" : 1000 }
+				*/
+				
+				db.articles.aggregate(
+				    [ { $match : { author : "dave" } } ]
+				);
+
+				db.articles.aggregate( [
+				  { $match: { $or: [ { score: { $gt: 70, $lt: 90 } }, { views: { $gte: 1000 } } ] } },
+				  { $group: { _id: null, count: { $sum: 1 } } }
+				]);
+				// => 
+				// { "_id" : null, "count" : 5 }
+
+			}
+		}
+	
+
 	}
 
 	function redis() {
