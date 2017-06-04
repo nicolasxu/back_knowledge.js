@@ -1,0 +1,31 @@
+1. on your macbook type 
+
+2. go to home folder (~)
+
+3. create(cd if exist) ".ssh" folder 
+
+4. type
+   ssh-keygen -t rsa
+   to generate a public and privete key pair
+
+2. go to your server
+
+3. create .ssh folder on your server home direction
+
+4. enter .ssh on server
+
+5. create a file with name "authorized_keys" in .ssh folder
+
+6. copy public key to this file
+
+7. run this command to login server using private key
+   ssh root@162.249.4.230 -p 7822
+
+---------------Alternative method ----------------------------------------------------
+
+ssh-keygen -t rsa -b 2048 -f ~/.ssh/id_rsa -C "Comment about your key goes here."
+
+cat ~/.ssh/id_rsa.pub | ssh root@162.249.4.230 -p 7822 'cat - >> ~/.ssh/authorized_keys'
+
+#explanation
+http://code.tutsplus.com/tutorials/ssh-what-and-how--net-25138
