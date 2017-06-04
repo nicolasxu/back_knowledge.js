@@ -1,0 +1,16 @@
+https://stackoverflow.com/questions/8495293/whats-a-clean-way-to-stop-mongod-on-mac-os-x
+
+
+launchctl list | grep mongo
+
+// if you see result, then mongodb is running by launch control
+
+launchctl stop <job label>
+
+e.g.: launchctl stop homebrew.mxcl.mongodb
+
+// job label is not process id
+
+
+launchctl start <job label>
+
