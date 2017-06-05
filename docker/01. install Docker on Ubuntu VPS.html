@@ -1,0 +1,48 @@
+<h1>Follow the official links and it works</h1>
+<h2>If you want to install on Ubuntu 17, you should follow this: </h2>
+<p>https://askubuntu.com/questions/909691/how-to-install-docker-on-ubuntu-17-04</p>
+<p>Since there is no official package support for Ubuntu 17 yet, but Docker can work on Ubuntu 17 with no issue</p>
+
+<h2>https://docs.docker.com/engine/installation/linux/ubuntu/</h2>
+
+
+OS requirements
+To install Docker, you need the 64-bit version of one of these Ubuntu versions:
+
+Yakkety 16.10
+Xenial 16.04 (LTS)
+Trusty 14.04 (LTS)
+Docker CE is supported on both x86_64 and armhf architectures.
+
+Uninstall old versions
+
+$ sudo apt-get remove docker docker-engine
+
+$ sudo apt-get update
+
+$ sudo apt-get install \
+    linux-image-extra-$(uname -r) \
+    linux-image-extra-virtual
+
+$ sudo apt-get install \
+    apt-transport-https \
+    ca-certificates \
+    curl \
+    software-properties-common
+
+
+    $ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+
+$ sudo apt-key fingerprint 0EBFCD88
+
+
+$ sudo add-apt-repository \
+   "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+   $(lsb_release -cs) \
+   stable"
+
+
+$ sudo apt-get update
+
+$ sudo apt-get install docker-ce
+
