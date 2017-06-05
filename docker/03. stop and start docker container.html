@@ -1,0 +1,21 @@
+Get running container:
+<code>
+  docker ps
+</code>
+
+CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS               NAMES
+97e1b096dab4        mongo               "docker-entrypoint..."   9 minutes ago       Up 2 minutes        27017/tcp           some-mongo
+
+Stop container 
+<code>
+  docker stop some-mongo
+</code>
+or you can provide container id
+<code>
+  docker stop 97e1b096dab4
+</code>
+
+Start container 
+<code>
+  docker start some-mongo
+</code>
