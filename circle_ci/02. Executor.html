@@ -1,0 +1,40 @@
+<p>Source: https://circleci.com/docs/2.0/executor-types/</p>
+
+<p>
+  Executor is environment to run your test.
+  It can be 
+  - Docker or
+  - machine (just a virtual machine)
+</p>
+
+<h3>Here is how you define it in .circleci/config.yml</h3>
+<script>
+
+jobs:
+  build:
+    docker:
+      - image: buildpack-deps:trusty
+</script>
+
+<h3>Multiple images</h3>
+<p>
+  It’s also possible to specify multiple images. When you do this, all containers 
+  will run in a common network. Every exposed port will be available on localhost 
+  from a primary container. Example: 
+</p>
+<script>
+jobs:
+  build:
+    docker:
+     - image: buildpack-deps:trusty
+
+     - image: mongo:2.6.8
+       command: [mongod, --smallfiles]
+
+    working_directory: ~/
+
+    steps:
+      # command will execute in trusty container
+      # and can access mongo on localhost
+      - run: sleep 5 && nc -vz localhost 27017
+</script>
