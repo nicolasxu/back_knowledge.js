@@ -1,6 +1,6 @@
 Step 1: Follow offical doc to install Docker on Ubuntu
 
-sudo apt-get upgrade
+sudo apt-get update && sudo apt-get upgrade
 
 
 
@@ -11,7 +11,7 @@ apt-get install default-jre
 docker pull jenkins
 
 
-docker run -d -p 8080:8080 jenkins
+docker run -d -p 8080:8080 -v /root/jenkins_folder:/var/jenkins_home -t jenkins
 
 
 # execute bash in docker container, aka, going into the docker container

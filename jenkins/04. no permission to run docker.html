@@ -1,0 +1,12 @@
+When you use Jenkins(not in Jenkins container) to run docker, e.g. "docker build -t name/image-name .",
+Jenkins need to be in 'docker' group to have the right to execute 'docker', since docker is 
+designed this way. 
+
+https://stackoverflow.com/questions/44444099/how-to-solve-docker-permission-error-when-trigger-by-jenkins
+
+on your VPS run the following command:
+sudo usermod -aG docker jenkins
+
+then restart jenkins service by:
+service jenkins stop
+service jenkins start

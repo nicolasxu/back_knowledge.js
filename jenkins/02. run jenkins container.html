@@ -6,10 +6,10 @@ step 1:
 mkdir jenkins_folder
 
 step 2: (give UID 1000 the ownership of the folder)
-chown 1000 jenkins_folder
+chown 1000 jenkins_home
 
 step 3:
-docker run -d -p 8080:8080 -v /root/jenkins_folder:/var/jenkins_home -t jenkins
+docker run -d -p 8080:8080 -v /root/jenkins_home:/var/jenkins_home -t jenkins
 
 
 
