@@ -1,0 +1,19 @@
+On CircleCI 2.0 the Docker images you use for you jobs are automatically cached on our infrastructure where possible. 
+
+
+The caching here is about caching dependency in source code.
+
+
+To cache a file or folder. 
+
+<script>
+- save_cache:
+    key: my-cache
+    paths:
+      - my-file.txt
+      - my-project/my-dependencies-directory  
+
+</script>
+
+path for directories is relative to the working_directory of your job.
+The libraries the are installed with pip in Python or npm for Node.js should be cached.

@@ -1,0 +1,12 @@
+-  you can use CLI to run circleCI locally for debug
+
+install:
+curl -o /usr/local/bin/circleci https://circle-downloads.s3.amazonaws.com/releases/build_agent_wrapper/circleci && chmod +x /usr/local/bin/circleci
+
+
+- caching: 
+  all caching steps are skipped
+
+- Relative Path for working_directory
+  Not working, error
+  You should execute circleci in your local working directory

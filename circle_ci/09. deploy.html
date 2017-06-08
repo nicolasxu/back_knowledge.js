@@ -1,0 +1,21 @@
+<script>
+  
+version: 2
+jobs:
+  build:
+    docker:
+      - image: my-image
+    working_directory: /tmp/my-project
+    steps:
+      - run: <do-some-stuff>
+      - deploy:
+          name: Maybe Deploy
+          command: |
+            if [ "${CIRCLE_BRANCH}" == "master" ]; then
+              <your-deploy-commands>
+            fi
+
+</script>
+
+
+The most important piece of this example is that we’re checking whether the current branch is the master branch before running any deploy commands

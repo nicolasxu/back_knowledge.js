@@ -1,0 +1,25 @@
+https://circleci.com/docs/2.0/caching/
+
+<script>
+  
+- restore_cache:
+    keys:
+      # Find a cache corresponding to this specific package.json checksum
+      # when this file is changed, this key will fail
+      - v1-projectname-npm-deps-{{ .Branch }}-{{ checksum "package.json" }}
+      # Find a cache corresponding to any build in this branch, regardless of package.json
+      # checksum.  The most recent one will be used.
+      - v1-projectname-npm-deps-{{ .Branch }}
+      # Find the most recent cache used from any branch
+      - v1-projectname-npm-deps-
+
+</script>
+
+
+<script>
+  
+myapp-{{ checksum "package.json" }} - cache will be regenerated every time something is changed in package.json file, different branches of this project will generate the same cache key.
+myapp-{{ .Branch }}-{{ checksum "package.json" }} - same as the previous one, but each branch will generate separate cache
+myapp-{{ epoch }} - every build will generate separate cache
+  
+</script>

@@ -1,0 +1,21 @@
+Step 1: Follow offical doc to install Docker on Ubuntu
+
+sudo apt-get upgrade
+
+
+
+apt-get install -y linux-image-extra-virtual
+
+apt-get install default-jre
+
+docker pull jenkins
+
+
+docker run -d -p 8080:8080 jenkins
+
+
+# execute bash in docker container, aka, going into the docker container
+docker exec -it wonderful_mcclintock bash
+
+# exit docker bash
+exit

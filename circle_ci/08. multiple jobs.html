@@ -1,0 +1,15 @@
+The build job is the default and the only one CircleCI runs automatically. 
+
+
+Other jobs, you must trigger it yourself. 
+
+
+Currently, the only way to do that is to use the CircleCI API:
+
+curl -u ${CIRCLE_API_TOKEN}: \
+     -d build_parameters[CIRCLE_JOB]=deploy_production \
+     https://circleci.com/api/v1.1/project/<vcs-type>/<org>/<repo>/tree/master
+
+
+
+You can add tokens in circle CI project setting. 
