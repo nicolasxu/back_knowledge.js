@@ -1,0 +1,20 @@
+<p>file and folder permissions are put into 3 bucket of 
+  - owner, 
+  - group, 
+  - and other
+</p>
+
+
+
+r = 4
+w = 2
+x = 1
+
+
+            r   w   x   total
+user        4 + 2 + 1 = 7
+group       4 + 0 + 0 = 6
+other       0 + 0 + 1 = 1
+
+
+chmod 761 /path/to/file
