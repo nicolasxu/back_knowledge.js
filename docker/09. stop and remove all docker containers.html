@@ -1,0 +1,12 @@
+<ul>
+  <li>stop all containers
+    <script>
+      docker stop $(docker ps -a -q)
+    </script>
+  </li>
+  <li>remove all containers
+    <script>
+      docker rm $(docker ps -a -q)
+    </script>  
+  </li>
+</ul>
