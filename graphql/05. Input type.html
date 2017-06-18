@@ -1,0 +1,41 @@
+All declared variables must be either scalars, enums, or input object types.
+
+
+So if you want to pass a complex object into a field, you need to know what input type that matches on the server.
+
+<!-- client query -->
+<script>
+  
+mutation CreateReviewForEpisode($ep: Episode!, $review: ReviewInput!) {
+  createReview(episode: $ep, review: $review) {
+    stars
+    commentary
+  }
+}
+
+</script>
+
+<!-- client variables -->
+<script>
+  
+{
+  "ep": "JEDI",
+  "review": {
+    "stars": 5,
+    "commentary": "This is a great movie!"
+  }
+}  
+</script>
+
+<!-- result -->
+<script>
+  
+  {
+  "data": {
+    "createReview": {
+      "stars": 5,
+      "commentary": "This is a great movie!"
+    }
+  }
+}
+</script>

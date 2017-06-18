@@ -1,0 +1,47 @@
+<h1>http://graphql.org/learn/queries/</h1>
+<!-- named query -->
+<script>
+  
+query HeroNameAndFriends($episode: Episode = "JEDI") {
+  hero(episode: $episode) {
+    name
+    friends {
+      name
+    }
+  }
+}
+
+</script>
+
+<!-- unnamed query -->
+<script>
+  
+
+{
+  hello(name:"Nicolas Xu")
+  services {
+    _id
+    service_number
+   
+    price
+  }
+  service {
+    _id
+    description
+  }
+}
+
+</script>
+
+
+Give query a name
+<p>
+  
+  One thing we also saw in the example above is that our query has acquired an operation name. Up until now, we have been using a shorthand syntax where we omit both the query keyword and the query name, but in production apps it's useful to use these to make our code less ambiguous.
+</p>
+
+<p>
+  Think of this just like a function name in your favorite programming language. For example, in JavaScript we can easily work only with anonymous functions, but when we give a function a name, it's easier to track it down, debug our code, and log when it's called. In the same way, GraphQL query and mutation names, along with fragment names, can be a useful debugging tool on the server side to identify different GraphQL requests.
+
+
+</p>
