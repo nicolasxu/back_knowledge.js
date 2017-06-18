@@ -1,0 +1,23 @@
+<!-- define input type -->
+<script>
+  
+  input ReviewInput {
+    stars: Int!
+    commentary: String
+  }
+
+</script>
+
+
+<!-- Use input type -->
+
+<script>
+  
+mutation CreateReviewForEpisode($ep: Episode!, $review: ReviewInput!) {
+  createReview(episode: $ep, review: $review) {
+    stars
+    commentary
+  }
+}
+  
+</script>

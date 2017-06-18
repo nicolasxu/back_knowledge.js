@@ -1,0 +1,31 @@
+<h1>You can only have one Query type defined in one app</h1>
+
+<h1>http://graphql.org/learn/schema/</h1>
+graphql will use 'Query' time to execute a query, the same way that
+a 'Mutation' type will result a data change in the back-end
+
+The list of type:
+Query    // Must have
+Mutation // Only needed when you want to update data
+String
+Float
+[String] // array of String
+String!  // non empty String type
+input
+interface
+mutation
+
+<p>User define type</p>
+<code>
+type Starship {
+  id: ID!
+  name: String!
+  length(unit: LengthUnit = METER): Float
+}  
+
+</code>
+
+schema {
+  query: Query
+  mutation: Mutation
+}
