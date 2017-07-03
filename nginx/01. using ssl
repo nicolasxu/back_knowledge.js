@@ -1,0 +1,9 @@
+server {
+
+    listen       443 ssl;
+    server_name  www.nicolasxu.space nicolasxu.space;
+    ssl_certificate /root/.ssh/nicolasxu.space.cert;
+    ssl_certificate_key /root/nicolasxu.space.key;
+
+    ...
+}
