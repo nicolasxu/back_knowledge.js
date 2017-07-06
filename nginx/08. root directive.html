@@ -1,0 +1,21 @@
+The root directive specifies the root directory that will be used to search for a file.
+To obtain the path of a requested file, NGINX appends the request URI to the path specified by the root directive.
+
+The directive can be placed on any level within the http, server, or location contexts. 
+
+It applies to all location blocks where the root directive is not included to explicitly redefine the root:
+
+
+server {
+    root /www/data;
+
+    location / {
+    }
+
+    location /images/ {
+    }
+
+    location ~ \.(mp3|mp4) {
+        root /www/media;
+    }
+}

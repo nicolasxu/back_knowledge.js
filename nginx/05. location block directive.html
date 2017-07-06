@@ -1,0 +1,25 @@
+https://www.digitalocean.com/community/tutorials/understanding-nginx-server-and-location-block-selection-algorithms
+
+
+Location blocks live within server blocks (or other location blocks) and are used to decide how to process the request URI (the part of the request that comes after the domain name or IP address/port).
+
+
+location optional_modifier location_match {
+
+    . . .
+
+}
+
+
+The modifiers
+
+
+(none): If no modifiers are present, the location is interpreted as a prefix match. This means that the location given will be matched against the beginning of the request URI to determine a match.
+
+=: If an equal sign is used, this block will be considered a match if the request URI exactly matches the location given.
+
+~: If a tilde modifier is present, this location will be interpreted as a case-sensitive regular expression match.
+
+~*: If a tilde and asterisk modifier is used, the location block will be interpreted as a case-insensitive regular expression match.
+
+^~: If a carat and tilde modifier is present, and if this block is selected as the best non-regular expression match, regular expression matching will not take place.

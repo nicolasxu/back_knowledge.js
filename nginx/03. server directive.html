@@ -1,0 +1,25 @@
+https://www.digitalocean.com/community/tutorials/understanding-nginx-server-and-location-block-selection-algorithms
+
+
+A server block is a subset of Nginx's configuration that defines a virtual server used to handle requests of a defined type. Administrators often configure multiple server blocks and decide which block should handle which connection based on the requested domain name, port, and IP address.
+
+<!-- example -->
+<script>
+  
+server {
+    listen 192.168.1.10;
+
+    . . .
+
+}
+
+server {
+    listen 80;
+    server_name example.com;
+
+    . . .
+
+}  
+
+
+</script>

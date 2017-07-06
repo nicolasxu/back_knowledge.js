@@ -1,0 +1,53 @@
+location /site {
+
+    . . .
+
+}
+
+matches:
+ /site, /site/page1/index.html, or /site/index.html
+
+
+ <!-- Example 2 -->
+
+ location = /page1 {
+
+    . . .
+
+}
+
+matches: /page1 only, because of the = operator
+
+
+<!-- Example 3 -->
+
+location ~ \.(jpe?g|png|gif|ico)$ {
+
+    . . .
+
+}
+
+matches: /tortoise.jpg, but not for /FLOWER.PNG, because of the ~ case sensitive modifier
+
+
+<!-- Example 4 -->
+location ~* \.(jpe?g|png|gif|ico)$ {
+
+    . . .
+
+}
+
+matches: both /tortoise.jpg and /FLOWER.PNG
+
+<!-- Example 5 -->
+location ^~ /costumes {
+
+    . . .
+
+}
+
+matches: /costumes/ninja.html, ^~ means non regular epxression matching. 
+
+
+
+

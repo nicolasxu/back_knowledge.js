@@ -1,0 +1,23 @@
+Next, to further evaluate requests that have equally specific listen directives, Nginx checks the request's "Host" header. This value holds the domain or IP address that the client was actually trying to reach.
+
+
+Nginx will first try to find a server block with a server_name that matches the value in the "Host" header of the request exactly. If this is found, the associated block will be used to serve the request. If multiple exact matches are found, the first one is used.
+
+<!-- example:  -->
+
+
+server {
+    listen 80;
+    server_name *.example.com;
+
+    . . .
+
+}
+
+server {
+    listen 80;
+    server_name host1.example.com;
+
+    . . .
+
+}

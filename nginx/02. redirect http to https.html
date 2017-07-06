@@ -6,10 +6,13 @@ server {
 
 server {
        listen         443 ssl;
-       server_name    my.domain.com;
+       server_name    www.nicolasxu.space nicolasxu.space;
        # add Strict-Transport-Security to prevent man in the middle attacks
        add_header Strict-Transport-Security "max-age=31536000"; 
-
+  
+      
+       ssl_certificate /root/.ssh/nicolasxu.space.cert;
+       ssl_certificate_key /root/nicolasxu.space.key;
        [....]
 }
 
