@@ -1,0 +1,23 @@
+# server context
+
+location /match/here {
+    proxy_pass http://example.com/new/prefix;
+}
+
+. . .
+
+
+
+For example, a request for 
+  /match/here/please 
+on the Nginx server will be passed to the upstream server as 
+  http://example.com/new/prefix/please
+The 
+  /match/here
+is replaced by
+  /new/prefix
+
+This is an important point to keep in mind.
+
+
+when the location is matched using regular expressions, Nginx cannot determine which part of the URI matched the expression, so it sends the original client request URI. Another example is when a rewrite directive is used within the same location, causing the client URI to be rewritten, but still handled in the same block. In this case, the rewritten URI will be passed.

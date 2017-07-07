@@ -1,0 +1,47 @@
+<h1>What is upstream server</h1>
+<p>
+  The other servers in this instance can be remote machines, local servers, or even other virtual servers defined within Nginx. The servers that Nginx proxies requests to are known as upstream servers.
+</p>
+upstream project {
+  server 22.22.22.2:3000;
+  server 22.22.22.3:3000;
+  server 22.22.22.5:3000;
+}
+
+server {
+  listen 80;
+
+  location / {
+    proxy_pass http://project;
+  }
+  location ~* \.(css|js|gif|jpe?g|png)$ {
+    expires 168h;
+    
+  }
+  location /api {
+    expires 10m;
+  }
+}
+
+
+<!-- Example 2 -->
+
+# http context
+
+upstream backend_hosts {
+    server host1.example.com;
+    server host2.example.com;
+    server host3.example.com;
+}
+
+server {
+    listen 80;
+    server_name example.com;
+
+    location /proxy-me {
+        proxy_pass http://backend_hosts;
+    }
+}
+
+In the above example, we've set up an upstream context called backend_hosts. Once defined, this name will be available for use within proxy passes as if it were a regular domain name. As you can see, within our server block we pass any request made to example.com/proxy-me/... to the pool we defined above. Within that pool, a host is selected by applying a configurable algorithm. By default, this is just a simple round-robin selection process (each request will be routed to a different host in turn).
+

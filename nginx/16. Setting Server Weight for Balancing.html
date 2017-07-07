@@ -1,0 +1,13 @@
+In declarations of the backend servers, by default, each servers is equally "weighted". This assumes that each server can and should handle the same amount of load (taking into account the effects of the balancing algorithms). However, you can also set an alternative weight to servers during the declaration:
+
+
+# http context
+
+upstream backend_hosts {
+    server host1.example.com weight=3;
+    server host2.example.com;
+    server host3.example.com;
+}
+
+. . .
+

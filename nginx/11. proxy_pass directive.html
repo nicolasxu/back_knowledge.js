@@ -1,0 +1,14 @@
+# server context
+
+location /match/here {
+    proxy_pass http://example.com;
+    # proxy_pass 127.0.0.1:3000
+}
+
+
+<p>
+  explanation: 
+
+  In the above configuration snippet, no URI is given at the end of the server in the proxy_pass definition. For definitions that fit this pattern, the URI requested by the client will be passed to the upstream server as-is.  
+
+</p>

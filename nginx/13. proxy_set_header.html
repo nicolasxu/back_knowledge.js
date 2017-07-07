@@ -1,0 +1,23 @@
+# server context
+
+location /match/here {
+    proxy_set_header HOST $host;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+
+    proxy_pass http://example.com/new/prefix;
+}
+
+. . .
+
+The above request sets the "Host" header to the $host variable, which should contain information about the original host being requested.
+
+
+ The X-Forwarded-Proto header gives the proxied server information about the schema of the original client request (whether it was an http or an https request).
+
+
+ The X-Real-IP is set to the IP address of the client so that the proxy can correctly make decisions or log based on this information.
+
+
+ The X-Forwarded-For header is a list containing the IP addresses of every server the client has been proxied through up to this point. In the example above, we set this to the $proxy_add_x_forwarded_for variable. This variable takes the value of the original X-Forwarded-For header retrieved from the client and adds the Nginx server's IP address to the end.
