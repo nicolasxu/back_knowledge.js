@@ -1,0 +1,13 @@
+https://stackoverflow.com/questions/41191655/safely-disable-wp-rest-api
+
+ WP REST API BLOCK JSON REQUESTS 
+# Block/Forbid Requests to: /wp-json/wp/
+# WP REST API REQUEST METHODS: GET, POST, PUT, PATCH, DELETE
+RewriteCond %{REQUEST_METHOD} ^(GET|POST|PUT|PATCH|DELETE) [NC]
+RewriteCond %{REQUEST_URI} ^.*wp-json/wp/ [NC]
+RewriteRule ^(.*)$ - [F]
+A very drastic method, is also to have a 404.html webpage in your root and then add this line:
+
+# WP REST API BLOCK JSON REQUESTS 
+# Redirect to a 404.html (you may want to add a 404 header!) 
+RewriteRule ^wp-json.*$ 404.html

@@ -1,0 +1,11 @@
+http://newton.bme.columbia.edu/manual/rewrite/rewrite_flags.html.en
+
+F|forbidden
+
+Using the [F] flag causes Apache to return a 403 Forbidden status code to the client. While the same behavior can be accomplished using the Deny directive, this allows more flexibility in assigning a Forbidden status.
+
+The following rule will forbid .exe files from being downloaded from your server.
+
+RewriteRule \.exe - [F]
+
+This example uses the "-" syntax for the rewrite target, which means that the requested URI is not modified. There's no reason to rewrite to another URI, if you're going to forbid the request.

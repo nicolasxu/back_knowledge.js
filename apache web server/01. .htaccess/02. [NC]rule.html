@@ -1,0 +1,9 @@
+http://newton.bme.columbia.edu/manual/rewrite/rewrite_flags.html.en
+
+NC|nocase
+
+Use of the [NC] flag causes the RewriteRule to be matched in a case-insensitive manner. That is, it doesn't care whether letters appear as upper-case or lower-case in the matched URI.
+
+In the example below, any request for an image file will be proxied to your dedicated image server. The match is case-insensitive, so that .jpg and .JPG files are both acceptable, for example.
+
+RewriteRule (.*\.(jpg|gif|png))$ http://images.example.com$1 [P,NC]
