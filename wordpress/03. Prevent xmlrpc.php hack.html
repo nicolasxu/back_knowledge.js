@@ -1,0 +1,6 @@
+# Block WordPress xmlrpc.php requests
+# put the following code in .htaccess in the folder where wordpress lives
+<Files xmlrpc.php>
+        order deny,allow
+        deny from all
+</Files>

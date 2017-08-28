@@ -1,0 +1,23 @@
+follow this link:
+
+https://stackoverflow.com/questions/640409/can-i-install-update-wordpress-plugins-without-providing-ftp-access
+
+
+WordPress will only prompt you for your FTP connection information while trying to install plugins or a WordPress update if it cannot write to /wp-content directly. Otherwise, if your web server has write access to the necessary files, it will take care of the updates and installation automatically. This method does not require you to have FTP/SFTP or SSH access, but it does require your to have specific file permissions set up on your webserver.
+
+It will try various methods in order, and fall back on FTP if Direct and SSH methods are unavailable.
+
+https://github.com/WordPress/WordPress/blob/4.2.2/wp-admin/includes/file.php#L912
+
+WordPress will try to write a temporary file to your /wp-content directory. If this succeeds, it compares the ownership of the file with its own uid, and if there is a match it will allow you to use the 'direct' method of installing plugins, themes, or updates.
+
+Now, if for some reason you do not want to rely on the automatic check for which filesystem method to use, you can define a constant, 'FS_METHOD' in your wp-config.php file, that is either  'direct', 'ssh', 'ftpext' or 'ftpsockets' and it will use that method. Keep in mind that if you set this to 'direct', but your web user (the username under which your web server runs) does not have proper write permissions, you will receive an error.
+
+In summary, if you do not want to (or you cannot) change permissions on wp-content so your web server has write permissions, then add this to your wp-config.php file:
+
+define('FS_METHOD', 'direct');
+Permissions explained here:
+
+http://codex.wordpress.org/Updating_WordPress#Automatic_Update
+http://codex.wordpress.org/Changing_File_Permissions
+

@@ -1,0 +1,20 @@
+It's important to remember that other than the special status of being the "entry point" into the schema, the Query and Mutation types are the same as any other GraphQL object type, and their fields work exactly the same way.
+
+
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+- You can only define Query once in schema
+- If a type is used before it is defined in type text and compiled using makeExecutableSchema,
+var { makeExecutableSchema } = require('graphql-tools');
+then it is totally ok.
+
+
+
+-----------------------------------------------------------
+input is another special type in graphql, because in graphql you can't mix input and output types in your schema.
+
+http://graphql.org/learn/schema/
+

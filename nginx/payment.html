@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <meta http-equiv = "Content-type"   content = "text/html; charset=utf-8">
+      <title> Dr. Nicole Baumer, MeD Payment </title>
+      <script src = "https://wl.flywire.com/assets/js/flywire.js" ></script>
+   </head>
+   <body>
+      <div   id = "payex" ></div>
+      <script>
+         window.flywire.Payment.render ({ 
+            env: "production",
+            destination: "imd",
+          },   "#payex" );  
+      </script>
+   </body>
+</html>
